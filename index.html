@@ -85,6 +85,17 @@
     <circle cx="-6.9" cy="-4" r="8" fill="none" stroke="#dcc490" stroke-width="0.8"/>
   </svg>
 </div>
+<script>
+  // Per-domain branding: the legacy swarmular.io keeps the old wordmark,
+  // every other host (squirmular.io, localhost, *.github.io) gets the new one.
+  // Runs inline right after the wordmark is parsed, so there is no flash.
+  (function () {
+    if (!/(^|\.)swarmular\./i.test(location.hostname)) return;
+    document.title = 'Swarmular.io — Grow · Survive · Thrive';
+    var t = document.getElementById('logo-title');
+    if (t) t.textContent = 'SWARMULAR';
+  })();
+</script>
 <div id="coming-soon">COMING SOON</div>
 
 <script src="app.js"></script>
