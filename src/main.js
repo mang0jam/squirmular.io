@@ -275,10 +275,49 @@ function sAlpha(idx, t) {
   return 0;
 }
 
+// ---- Starfield: slow upward drift behind the geometry -----------------------
+// Three depth layers (speed + size + alpha scale together) so the drift reads
+// as parallax, not confetti. Stars live in [0,1] normalized space and wrap at
+// the top, so resize never strands or bunches them. Subtle sinusoidal twinkle,
+// deliberately gentle — the geometry is the show, the stars are the air.
+const STAR_LAYERS = [
+  { n: 90, speed: 0.008, size: 0.9, alpha: 0.28 },
+  { n: 50, speed: 0.016, size: 1.4, alpha: 0.42 },
+  { n: 22, speed: 0.030, size: 2.0, alpha: 0.6 },
+];
+const stars = [];
+for (const L of STAR_LAYERS) {
+  for (let i = 0; i < L.n; i++) {
+    stars.push({
+      x: Math.random(), y: Math.random(),
+      speed: L.speed * (0.75 + Math.random() * 0.5),
+      size: L.size, alpha: L.alpha * (0.7 + Math.random() * 0.6),
+      tw: Math.random() * TAU, twSpeed: 0.4 + Math.random() * 1.1,
+      // A hint of the page's two accent hues, mostly white.
+      hue: Math.random() < 0.75 ? '255,255,255' : (Math.random() < 0.5 ? '100,200,180' : '220,196,144'),
+    });
+  }
+}
+
+function drawStars(dt, ts) {
+  for (const s of stars) {
+    s.y -= s.speed * dt;                 // upward
+    if (s.y < -0.01) { s.y = 1.01; s.x = Math.random(); }
+    const tw = 0.75 + 0.25 * Math.sin(ts / 1000 * s.twSpeed + s.tw);
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.size, 0, TAU);
+    ctx.fillStyle = `rgba(${s.hue},${(s.alpha * tw).toFixed(3)})`;
+    ctx.fill();
+  }
+}
+
 let last=0;
 function frame(ts) {
   const dt=Math.min((ts-last)/1000,0.1); last=ts;
-  ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,W,H);
+  // ONE surface owns every pixel of background — the page must never show a
+  // second tone behind or below the canvas (body bg matches as a fallback).
+  ctx.fillStyle='#08090b'; ctx.fillRect(0,0,W,H);
+  drawStars(dt, ts);
 
   let peak=0;
   for(let i=0;i<solids.length;i++) peak=Math.max(peak,sAlpha(i,ts));

@@ -10,8 +10,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0a0a0a; overflow: hidden; }
-  canvas { display: block; position: fixed; top: 0; left: 0; width: 100dvw; height: 100dvh; }
+  /* body bg matches the canvas paint EXACTLY — the canvas covers every edge
+     (inset:0), so no second background tone can ever appear as a band. */
+  body { background: #08090b; overflow: hidden; }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
   #ui {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -60,9 +62,9 @@
     margin-bottom: 0.5em;
   }
   #logo-seed { opacity: 0.22; }
-  /* The single call to action. Everything else on the page is thin gold line
-     work on near-black, so a SOLID gold fill is what makes this read as a
-     button at a glance rather than one more line of the wordmark lockup. */
+  /* The single call to action: a sleek OUTLINED pill in the page's own thin
+     gold line language. Resting state is quiet — hairline + gold text; the
+     gold fill, lift and glow arrive only on hover/focus. */
   #play {
     pointer-events: auto;              /* #logo above is pointer-events:none */
     margin-top: clamp(1.1rem, 3vh, 1.9rem);
@@ -72,26 +74,24 @@
     font-size: clamp(1.5rem, 3.6vw, 2.3rem);
     line-height: 1;
     letter-spacing: 0.18em; text-indent: 0.18em;  /* offset the trailing track */
-    color: #0a0a0a; text-decoration: none; white-space: nowrap;
-    background: linear-gradient(180deg, #f2e0ac, #d6b97c);
+    color: #dcc490; text-decoration: none; white-space: nowrap;
+    background: transparent;
+    border: 1px solid rgba(220, 196, 144, 0.55);
     border-radius: 999px;
-    box-shadow: 0 0 0 1px rgba(220, 196, 144, 0.55);
-    /* Pulse lives on `filter` so it can't fight the hover box-shadow. */
-    animation: play-pulse 2.6s ease-in-out infinite;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease,
+                transform 0.18s ease, box-shadow 0.18s ease;
   }
   #play:hover, #play:focus-visible {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 0 1px rgba(220, 196, 144, 0.9), 0 0 46px rgba(220, 196, 144, 0.45);
+    color: #0a0a0a;
+    background: linear-gradient(180deg, #f2e0ac, #d6b97c);
+    border-color: #f2e0ac;
+    transform: translateY(-2px);
+    box-shadow: 0 0 34px rgba(220, 196, 144, 0.35);
   }
-  #play:active { transform: translateY(0) scale(0.99); }
+  #play:active { transform: translateY(0); }
   #play:focus-visible { outline: 2px solid #dcc490; outline-offset: 5px; }
   #play svg { margin-top: 0.04em; }
-  @keyframes play-pulse {
-    0%, 100% { filter: drop-shadow(0 0 9px rgba(220, 196, 144, 0.22)); }
-    50%      { filter: drop-shadow(0 0 24px rgba(220, 196, 144, 0.5)); }
-  }
-  @media (prefers-reduced-motion: reduce) { #play { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { #play { transition: none; } }
   #coming-soon {
     position: fixed; bottom: 0.8rem; left: 50%; transform: translateX(-50%);
     font-family: monospace;
