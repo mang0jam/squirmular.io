@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "javascript-obfuscator src/main.js --output app.js --config obfuscator.config.json"
+    "build": "javascript-obfuscator src/main.js --output app.js --config obfuscator.config.json",
+    "sync:legacy": "./sync-legacy.sh"
   },
   "devDependencies": {
     "javascript-obfuscator": "^4.1.1"
