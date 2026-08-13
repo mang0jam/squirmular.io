@@ -92,14 +92,6 @@
   #play:focus-visible { outline: 2px solid #dcc490; outline-offset: 5px; }
   #play svg { margin-top: 0.04em; }
   @media (prefers-reduced-motion: reduce) { #play { transition: none; } }
-  #coming-soon {
-    position: fixed; bottom: 0.8rem; left: 50%; transform: translateX(-50%);
-    font-family: monospace;
-    font-size: clamp(0.45rem, 1vw, 0.6rem);
-    color: #333;
-    letter-spacing: 0.3em;
-    pointer-events: none; z-index: 10;
-  }
 </style>
 </head>
 <body>
@@ -135,8 +127,6 @@
     if (t) t.textContent = 'SWARMULAR';
   })();
 </script>
-<div id="coming-soon">COMING SOON</div>
-
 <script src="app.js"></script>
 </body>
 </html>
