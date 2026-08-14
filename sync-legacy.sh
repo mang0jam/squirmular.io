@@ -2,6 +2,16 @@
 #
 # Mirror the site from this repo (squirmular.io) into the legacy repo (swarmular.io).
 #
+# ── RETIRED 2026-08-14 (Jay) ──────────────────────────────────────────────────
+# swarmular.io is now a standalone dark COMING SOON holding page (commit
+# 137512e in mang0jam/swarmular.io) and must NOT mirror this site — the mirror
+# carried a PLAY button pointing at play.squirmular.io. Delete the guard below
+# only if Swarmular relaunches as a mirror of this page.
+echo "sync-legacy is RETIRED: swarmular.io is a standalone COMING SOON page (2026-08-14)." >&2
+echo "It must not mirror the squirmular.io site. See the header of this script." >&2
+exit 1
+# ──────────────────────────────────────────────────────────────────────────────
+#
 # The two sites share one codebase. The ONLY file that differs is CNAME, which
 # pins each repo to its own domain — so this script deliberately never touches it.
 # Branding is not duplicated either: index.html picks SWARMULAR vs SQUIRMULAR at
