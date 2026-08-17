@@ -92,6 +92,22 @@
   #play:focus-visible { outline: 2px solid #dcc490; outline-offset: 5px; }
   #play svg { margin-top: 0.04em; }
   @media (prefers-reduced-motion: reduce) { #play { transition: none; } }
+  /* Server up/down gating: PLAY is hidden until a probe confirms the game
+     server is alive (script below). Exactly one of #play / #srv-status shows;
+     while probing, PLAY holds its slot invisibly so the layout never jumps. */
+  #play { visibility: hidden; opacity: 0; }
+  #play.up { visibility: visible; opacity: 1; }
+  #play.down { display: none; }
+  #srv-status {
+    display: none;
+    margin-top: clamp(1.1rem, 3vh, 1.9rem);
+    padding: 0.5em 0 0.55em;               /* mirror #play's vertical rhythm */
+    font-family: 'Patrick Hand SC', cursive;
+    font-size: clamp(1.5rem, 3.6vw, 2.3rem); line-height: 1;
+    letter-spacing: 0.14em; text-indent: 0.14em;
+    color: rgba(220, 196, 144, 0.4); white-space: nowrap;
+  }
+  #srv-status.on { display: block; }
 </style>
 </head>
 <body>
@@ -108,14 +124,55 @@
     <circle cx="-6.9" cy="4" r="8" fill="none" stroke="#dcc490" stroke-width="0.8"/>
     <circle cx="-6.9" cy="-4" r="8" fill="none" stroke="#dcc490" stroke-width="0.8"/>
   </svg>
-  <!-- Where PLAY goes. Single source of truth for the game URL.
-       TEMP: bare Fly host until the play.squirmular.io CNAME lands at
-       Namecheap (CNAME, Host `play`, Value `squirmular.fly.dev.`). -->
-  <a id="play" href="https://squirmular.fly.dev/">
+  <!-- Where PLAY goes. Single source of truth for the game URL. Shown only
+       when the probe below confirms the game server is up. -->
+  <a id="play" href="https://play.squirmular.io/">
     <svg width="16" height="19" viewBox="0 0 16 19" aria-hidden="true" focusable="false">
       <path d="M1.5 1 L15 9.5 L1.5 18 Z" fill="currentColor"/>
     </svg>PLAY</a>
+  <div id="srv-status" role="status" aria-live="polite">the serpents are resting</div>
 </div>
+<script>
+  // Server up/down probe. The game runs on Fly with auto_start disabled, so
+  // a stopped machine stays stopped no matter what we request — probing is
+  // free. We load a tiny static icon off the game origin as the liveness
+  // signal: an <img> probe needs no CORS and succeeds only if the Fly proxy
+  // reached a RUNNING machine that served the file. Cache-busted per probe.
+  (function () {
+    var PROBE = 'https://play.squirmular.io/icons/icon-180.png';
+    var TIMEOUT_MS = 5000;
+    var UP_RECHECK_MS = 5 * 60 * 1000;   // demote quickly enough if Jay stops it
+    var DOWN_RECHECK_MS = 45 * 1000;     // promote fast once it comes back
+    var play = document.getElementById('play');
+    var status = document.getElementById('srv-status');
+
+    function setState(up) {
+      play.classList.toggle('up', up);
+      play.classList.toggle('down', !up);
+      status.classList.toggle('on', !up);
+      setTimeout(probe, up ? UP_RECHECK_MS : DOWN_RECHECK_MS);
+    }
+
+    function probe() {
+      var img = new Image();
+      var settled = false;
+      var timer = setTimeout(function () { done(false); }, TIMEOUT_MS);
+      function done(up) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        img.onload = img.onerror = null;
+        img.src = '';
+        setState(up);
+      }
+      img.onload = function () { done(true); };
+      img.onerror = function () { done(false); };
+      img.src = PROBE + '?_=' + Date.now();
+    }
+
+    probe();
+  })();
+</script>
 <script>
   // Per-domain branding: the legacy swarmular.io keeps the old wordmark,
   // every other host (squirmular.io, localhost, *.github.io) gets the new one.
